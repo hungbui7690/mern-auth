@@ -7,9 +7,8 @@ import {
   VERIFICATION_EMAIL_TEMPLATE,
 } from './emailTemplate.js'
 
-// # check #pictures/ for mailtrap setup -> https://mailtrap.io/blog/send-emails-with-nodejs/#Send-emails-using-API
 const client = new MailtrapClient({
-  token: process.env.MAILTRAP_API_TOKEN, // node .\mailtrap\sendMail.js -> since we don't have dotenv package here, we cannot use process.env -> use real token here
+  token: process.env.MAILTRAP_API_TOKEN,
 })
 
 const sender = {
@@ -28,16 +27,37 @@ export const sendVerificationEmail = async (email, verificationToken) => {
       from: sender,
       to: recipients,
       subject: 'Auth App - Verify Your Email',
-      // text: 'Verify your email', // text version of the email
       html: VERIFICATION_EMAIL_TEMPLATE.replace(
         '{verificationCode}',
         verificationToken
-      ), // html version of the email
+      ),
       category: 'Email Verification',
     })
 
     console.log('Verification Email Sent')
   } catch (error) {
     throw new Error('Error sending verification email')
+  }
+}
+
+export const sendWelcomeEmail = async (email, name) => {
+  try {
+    const response = await client.send({
+      from: sender,
+      to: recipients,
+      template_uuid: 'bbf90413-26af-46b1-81fc-13e319fe9600', // from mailtrap template
+      template_variables: {
+        company_info_name: 'Auth App Company',
+        name: 'Auth App',
+        company_info_address: '123 Test St',
+        company_info_city: 'New York',
+        company_info_zip_code: '80021',
+        company_info_country: 'USA',
+      },
+    })
+
+    console.log('Welcome email sent successfully', response)
+  } catch (error) {
+    throw new Error(`Error sending welcome email: ${error}`)
   }
 }

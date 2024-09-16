@@ -3,7 +3,10 @@ import { generateTokenAndSetCookie } from '../utils/generateToken.js'
 import { User } from '../model/User.js'
 import BadRequestError from '../errors/bad-request.js'
 import { StatusCodes } from 'http-status-codes'
-import { sendVerificationEmail } from '../mailtrap/sendMail.js'
+import {
+  sendVerificationEmail,
+  sendWelcomeEmail,
+} from '../mailtrap/sendMail.js'
 
 export const signup = async (req, res) => {
   const { email, password, name } = req.body
@@ -41,6 +44,37 @@ export const signup = async (req, res) => {
   res.status(StatusCodes.CREATED).json({
     success: true,
     message: 'User created successfully',
+    user: {
+      ...user._doc,
+      password: undefined,
+    },
+  })
+}
+
+export const verifyEmail = async (req, res) => {
+  const { code } = req.body
+
+  // find user with verification code
+  const user = await User.findOne({
+    verificationToken: code,
+    verificationTokenExpiresAt: { $gt: Date.now() },
+  })
+
+  // check if user exists
+  if (!user) throw new BadRequestError('Invalid or expired verification code')
+
+  // update user
+  user.isVerified = true
+  user.verificationToken = undefined
+  user.verificationTokenExpiresAt = undefined
+  await user.save()
+
+  // send welcome email
+  await sendWelcomeEmail(user.email, user.name)
+
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: 'Email verified successfully',
     user: {
       ...user._doc,
       password: undefined,
