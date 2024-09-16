@@ -1,3 +1,5 @@
+import FloatingShape from './FloatingShape'
 import Loading from './Loading'
+import Input from './Input'
 
-export { Loading }
+export { Loading, FloatingShape, Input }
