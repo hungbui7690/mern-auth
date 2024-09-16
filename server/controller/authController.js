@@ -6,7 +6,10 @@ import { StatusCodes } from 'http-status-codes'
 import {
   sendVerificationEmail,
   sendWelcomeEmail,
+  sendPasswordResetEmail,
+  sendResetSuccessEmail,
 } from '../mailtrap/sendMail.js'
+import crypto from 'crypto'
 
 export const signup = async (req, res) => {
   const { email, password, name } = req.body
@@ -113,4 +116,64 @@ export const logout = async (req, res) => {
   res
     .status(StatusCodes.OK)
     .json({ success: true, message: 'Logged out successfully' })
+}
+
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body
+  const user = await User.findOne({ email })
+
+  if (!user) throw new BadRequestError('User not found')
+
+  // Generate reset token
+  const resetToken = crypto.randomBytes(20).toString('hex')
+  const resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000 // 1 hour
+
+  user.resetPasswordToken = resetToken
+  user.resetPasswordExpiresAt = resetTokenExpiresAt
+
+  await user.save()
+
+  // user clicks on forgot password button -> server send email with reset link -> user clicks on link -> sends to reset password page -> http:localhost:3000/reset-password/:resetToken -> user enters new password -> submit -> client sends new password to server -> server updates password -> sends success email to user
+  await sendPasswordResetEmail(
+    user.email,
+    `${process.env.CLIENT_URL}/reset-password/${resetToken}`
+  )
+
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: 'Password reset link sent to your email',
+  })
+}
+
+export const resetPassword = async (req, res) => {
+  const { token } = req.params
+  const { newPassword } = req.body
+
+  const user = await User.findOne({
+    resetPasswordToken: token,
+    resetPasswordExpiresAt: { $gt: Date.now() },
+  })
+
+  if (!user) throw new BadRequestError('Invalid or expired reset token')
+
+  // update password
+  const hashedPassword = await bcryptjs.hash(newPassword, 10)
+
+  user.password = hashedPassword
+  user.resetPasswordToken = undefined
+  user.resetPasswordExpiresAt = undefined
+  await user.save()
+
+  await sendResetSuccessEmail(user.email)
+
+  res
+    .status(StatusCodes.OK)
+    .json({ success: true, message: 'Password reset successful' })
+}
+
+export const checkAuth = async (req, res) => {
+  const user = await User.findById(req.userId).select('-password')
+  if (!user) throw new BadRequestError('User not found')
+
+  res.status(StatusCodes.OK).json({ success: true, user })
 }
