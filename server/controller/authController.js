@@ -81,3 +81,36 @@ export const verifyEmail = async (req, res) => {
     },
   })
 }
+
+export const login = async (req, res) => {
+  const { email, password } = req.body
+
+  // check if user exists or not
+  const user = await User.findOne({ email })
+  if (!user) throw new BadRequestError('Invalid credentials')
+
+  // check if password is valid
+  const isPasswordValid = await bcryptjs.compare(password, user.password)
+  if (!isPasswordValid) throw new BadRequestError('Invalid credentials')
+
+  generateTokenAndSetCookie(user._id, res)
+
+  user.lastLogin = new Date()
+  await user.save()
+
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: 'Logged in successfully',
+    user: {
+      ...user._doc,
+      password: undefined,
+    },
+  })
+}
+
+export const logout = async (req, res) => {
+  res.clearCookie('authToken')
+  res
+    .status(StatusCodes.OK)
+    .json({ success: true, message: 'Logged out successfully' })
+}
