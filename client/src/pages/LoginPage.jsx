@@ -1,11 +1,20 @@
 import { motion } from 'framer-motion'
 import { Input } from '../components'
-import { Lock, Mail } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Lock, Mail, Loader } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuthStore } from '../zustand/useAuthStore'
 
 const LoginPage = () => {
+  const { login, isLoading } = useAuthStore()
+  const navigate = useNavigate()
+
   const handleSignUp = async (e) => {
     e.preventDefault()
+    const formData = new FormData(e.target)
+    const data = Object.fromEntries(formData.entries())
+    console.log(data)
+    await login(data)
+    navigate('/')
   }
 
   return (
@@ -35,7 +44,11 @@ const LoginPage = () => {
             whileTap={{ scale: 0.98 }}
             type='submit'
           >
-            Login
+            {isLoading ? (
+              <Loader className='mx-auto w-6 h-6 animate-spin' />
+            ) : (
+              'Login'
+            )}
           </motion.button>
         </form>
         <div className='flex justify-center bg-gray-900 bg-opacity-50 mt-5 px-8 py-4'>

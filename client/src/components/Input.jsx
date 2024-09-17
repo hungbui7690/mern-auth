@@ -10,6 +10,7 @@ const Input = ({ icon: Icon, ...props }) => {
         autoComplete={`${props.type === 'password' && 'true'}`}
         value={props.value}
         onChange={props?.onChange}
+        required
       />
     </div>
   )

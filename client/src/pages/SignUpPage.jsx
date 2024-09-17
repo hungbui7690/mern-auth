@@ -1,22 +1,28 @@
 import { motion } from 'framer-motion'
 import { Input } from '../components'
-import { Lock, Mail, User } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Lock, Mail, User, Loader } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
 import PasswordStrengthMeter from '../components/PasswordStrengthMeter'
 import { useState } from 'react'
+import { useAuthStore } from '../zustand/useAuthStore'
 
 const SignUpPage = () => {
   const [password, setPassword] = useState('')
+  const { signup, error, isLoading } = useAuthStore()
+  const navigate = useNavigate()
 
   const handleSignUp = async (e) => {
     e.preventDefault()
+    const formData = new FormData(e.target)
+    const data = Object.fromEntries(formData.entries())
+    await signup(data)
+    navigate('/verify-email')
   }
 
   return (
     <>
       <div className='p-8'>
         <h2 className='mb-6 font-bold text-3xl text-center'>Create Account</h2>
-
         <form onSubmit={handleSignUp}>
           <Input
             icon={User}
@@ -51,12 +57,20 @@ const SignUpPage = () => {
           >
             Sign Up
           </motion.button>
+
+          {error && (
+            <p className='my-5 mt-2 font-semibold text-red-500'>{error}</p>
+          )}
         </form>
         <div className='flex justify-center bg-gray-900 bg-opacity-50 mt-5 px-8 py-4'>
           <p className='text-gray-400 text-sm'>
             Already have an account?{' '}
             <Link to={'/login'} className='text-emerald-500 hover:underline'>
-              Login
+              {isLoading ? (
+                <Loader className='mx-auto animate-spin' size={24} />
+              ) : (
+                'Sign Up'
+              )}
             </Link>
           </p>
         </div>

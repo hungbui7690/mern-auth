@@ -1,17 +1,26 @@
 import { motion } from 'framer-motion'
 import { useEffect, useRef } from 'react'
 import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
+import { useAuthStore } from '../zustand/useAuthStore'
 
 const EmailVerificationPage = () => {
   const inputRef = useRef([])
+  const navigate = useNavigate()
+  const { verifyEmail } = useAuthStore()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!inputRef.current.value) {
+    const formData = new FormData(e.target)
+    const code = formData.get('code')
+    if (!code) {
       toast.error('Please enter the 6-digits code to verify your account.')
       return
     }
+
+    await verifyEmail({ code })
+    navigate('/')
   }
 
   useEffect(() => {
@@ -37,9 +46,10 @@ const EmailVerificationPage = () => {
           <div className='flex justify-between'>
             <input
               type='text'
-              maxLength='1'
+              maxLength='6'
               className='border-2 border-gray-600 bg-transparent rounded-lg w-full font-bold text-2xl text-center text-white focus:outline-none'
               ref={inputRef}
+              name='code'
             />
           </div>
 
