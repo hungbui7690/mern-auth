@@ -1,13 +1,9 @@
 import { motion } from 'framer-motion'
 import { Input } from '../components'
-import { Lock, Mail, User } from 'lucide-react'
+import { Lock, Mail } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import PasswordStrengthMeter from '../components/PasswordStrengthMeter'
-import { useState } from 'react'
 
 const LoginPage = () => {
-  const [password, setPassword] = useState('')
-
   const handleSignUp = async (e) => {
     e.preventDefault()
   }
@@ -31,8 +27,6 @@ const LoginPage = () => {
             placeholder='Password'
             name='password'
             defaultValue='121212'
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
           />
 
           <motion.button

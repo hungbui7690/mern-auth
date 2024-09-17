@@ -37,7 +37,6 @@ const SignUpPage = () => {
             type='password'
             placeholder='Password'
             name='password'
-            defaultValue='121212'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />

@@ -1,7 +1,7 @@
 import { Toaster } from 'react-hot-toast'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import SharedLayout from './pages/SharedLayout'
-import { HomePage, LoginPage, SignUpPage } from './pages'
+import { HomePage, LoginPage, SignUpPage, VerifyEmailPage } from './pages'
 
 function App() {
   return (
@@ -12,6 +12,7 @@ function App() {
             <Route index element={<HomePage />} />
             <Route path='signup' element={<SignUpPage />} />
             <Route path='login' element={<LoginPage />} />
+            <Route path='verify-email' element={<VerifyEmailPage />} />
           </Route>
         </Routes>
         <Toaster />
