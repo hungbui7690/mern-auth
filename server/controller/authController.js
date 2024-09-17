@@ -121,9 +121,13 @@ export const logout = async (req, res) => {
 
 export const forgotPassword = async (req, res) => {
   const { email } = req.body
+  console.log(req.body)
   const user = await User.findOne({ email })
 
-  if (!user) throw new BadRequestError('User not found')
+  if (!user)
+    throw new BadRequestError(
+      `User with email ${email} not found in our system`
+    )
 
   // Generate reset token
   const resetToken = crypto.randomBytes(20).toString('hex')

@@ -4,12 +4,9 @@ import toast from 'react-hot-toast'
 
 export const useAuthStore = create((set) => ({
   user: JSON.parse(localStorage.getItem('user')) || null,
-  isAuthenticated: false,
   error: null,
   isLoading: false,
-  isCheckingAuth: true,
   message: null,
-
   signup: async (formData) => {
     set({ isLoading: true, error: null })
     try {
@@ -20,7 +17,6 @@ export const useAuthStore = create((set) => ({
     } catch (error) {
       toast.error(error?.response?.data?.msg || 'Error signing up')
       set({
-        error: error?.response?.data?.msg || 'Error signing up',
         isLoading: false,
       })
       localStorage.removeItem('user')
@@ -39,7 +35,6 @@ export const useAuthStore = create((set) => ({
       toast.error(error?.response?.data?.msg || 'Error verifying email')
       localStorage.removeItem('user')
       set({
-        error: error.response.data.msg || 'Error verifying email',
         isLoading: false,
       })
 
@@ -62,7 +57,6 @@ export const useAuthStore = create((set) => ({
       toast.error(error?.response?.data?.msg || 'Error logging in')
       localStorage.removeItem('user')
       set({
-        error: error.response?.data?.message || 'Error logging in',
         isLoading: false,
       })
       throw error
@@ -75,31 +69,44 @@ export const useAuthStore = create((set) => ({
       set({ user: null, isAuthenticated: false, error: null, isLoading: false })
       toast.success('Logged out successfully.')
     } catch (error) {
-      toast.error(error?.response?.data?.msg || 'Error logging out')
-
+      console.log(error?.response?.data?.msg || 'Error logging out')
       set({ error: 'Error logging out', isLoading: false })
       throw error
     } finally {
       localStorage.removeItem('user')
     }
   },
-  checkAuth: async () => {
-    set({ isCheckingAuth: true, error: null })
+  forgotPassword: async (formData) => {
+    set({ isLoading: true, error: null })
     try {
-      const response = await axiosInstance.get(`/auth/check-auth`)
-      set({
-        user: response.data.user,
-        isAuthenticated: true,
-        isCheckingAuth: false,
-      })
+      const res = await axiosInstance.post(`/auth/forgot-password`, formData)
+      toast.success(res.data.message)
+      set({ isLoading: false })
     } catch (error) {
-      console.log(error?.response?.data?.msg || 'Authorization error')
-      localStorage.removeItem('user')
+      toast.error(
+        error.response.data.msg || 'Error sending reset password email'
+      )
       set({
-        error: error.response.data.message,
-        isCheckingAuth: false,
-        isAuthenticated: false,
+        isLoading: false,
       })
+      throw error
+    }
+  },
+  resetPassword: async (token, password) => {
+    set({ isLoading: true, error: null })
+    try {
+      const response = await axiosInstance.post(
+        `/auth/reset-password/${token}`,
+        password
+      )
+      set({ message: response.data.message, isLoading: false })
+      toast.success(response.data.message)
+    } catch (error) {
+      toast.error(error?.response?.data?.msg || 'Error resetting password')
+      set({
+        isLoading: false,
+      })
+      throw error
     }
   },
 }))

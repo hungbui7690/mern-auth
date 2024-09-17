@@ -51,11 +51,21 @@ const LoginPage = () => {
             )}
           </motion.button>
         </form>
-        <div className='flex justify-center bg-gray-900 bg-opacity-50 mt-5 px-8 py-4'>
+        <div className='flex flex-col justify-center bg-gray-900 bg-opacity-50 mt-5 px-8 py-4'>
           <p className='text-gray-400 text-sm'>
             {"Don't"} have an account?{' '}
             <Link to={'/signup'} className='text-emerald-500 hover:underline'>
               Sign Up
+            </Link>
+          </p>
+          <p className='text-gray-400 text-sm'>
+            Forgot Password?
+            <Link
+              to={'/forgot-password'}
+              className='text-emerald-500 hover:underline'
+            >
+              {' '}
+              Click here
             </Link>
           </p>
         </div>

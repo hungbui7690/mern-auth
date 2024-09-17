@@ -15,17 +15,12 @@ const sender = {
   email: 'mailtrap@demomailtrap.com',
   name: 'Auth App',
 }
-const recipients = [
-  {
-    email: 'hungbui7690@gmail.com',
-  },
-]
 
 export const sendVerificationEmail = async (email, verificationToken) => {
   try {
     await client.send({
       from: sender,
-      to: recipients,
+      to: email,
       subject: 'Auth App - Verify Your Email',
       html: VERIFICATION_EMAIL_TEMPLATE.replace(
         '{verificationCode}',
@@ -36,6 +31,7 @@ export const sendVerificationEmail = async (email, verificationToken) => {
 
     console.log('Verification Email Sent')
   } catch (error) {
+    console.log(error)
     throw new Error('Error sending verification email')
   }
 }

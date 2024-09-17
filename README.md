@@ -12,7 +12,7 @@
 - dotenv 
 - cors 
 - cookie-parser 
-- mailtrap
+- `mailtrap`
 
 ### FrontEnd
 - tailwind 
