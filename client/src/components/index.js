@@ -1,5 +1,5 @@
 import FloatingShape from './FloatingShape'
-import Loading from './Loading'
+import LoadingSpinner from './LoadingSpinner'
 import Input from './Input'
 
-export { Loading, FloatingShape, Input }
+export { LoadingSpinner, FloatingShape, Input }
